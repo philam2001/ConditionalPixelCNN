@@ -225,7 +225,7 @@ if __name__ == '__main__':
         if epoch % args.sampling_interval == 0:
             print('......sampling......')
             # sample through all classNum labels
-            for classNum in my_bidict:
+            for classNum in my_bidict.values():
                 condition_tensor = torch.full((args.sample_batch_size,), classNum).to(next(model.parameters()).device)
         
                 sample_t = sample(model, args.sample_batch_size, args.obs, sample_op, condition_tensor)
