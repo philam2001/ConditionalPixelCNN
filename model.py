@@ -52,7 +52,7 @@ class PixelCNNLayer_down(nn.Module):
 
 class PixelCNN(nn.Module):
     def __init__(self, nr_resnet=5, nr_filters=80, nr_logistic_mix=10,
-                    resnet_nonlinearity='concat_elu', input_channels=3, num_classes=5):
+                    resnet_nonlinearity='concat_elu', input_channels=3, num_classes=4):
         super(PixelCNN, self).__init__()
         if resnet_nonlinearity == 'concat_elu' :
             self.resnet_nonlinearity = lambda x : concat_elu(x)
@@ -101,21 +101,21 @@ class PixelCNN(nn.Module):
 
     # fuse in the conditions into the feature maps
     def fuse_conditions(self, feature_list, cond_embedding):
-        fused_list = [feature + cond_embedding for feature in feature_list]
-        return fused_list
+        for i in range(len(feature_list)):
+            feature_list[i] += cond_embedding
 
     # take in condition, tells model what class embedding to generate on
-    def forward(self, x, condition, sample=False):
+    def forward(self, x, sample=False):
         # similar as done in the tf repo :
         if self.init_padding is not sample:
             xs = [int(y) for y in x.size()]
             padding = Variable(torch.ones(xs[0], 1, xs[2], xs[3]), requires_grad=False)
-            self.init_padding = padding.cuda() if x.is_cuda else padding
+            self.init_padding = padding.cuda() if x.is_cuda else padding.to(x.device)
 
         if sample :
             xs = [int(y) for y in x.size()]
             padding = Variable(torch.ones(xs[0], 1, xs[2], xs[3]), requires_grad=False)
-            padding = padding.cuda() if x.is_cuda else padding
+            padding = padding.cuda() if x.is_cuda else padding.to(x.device)
             x = torch.cat((x, padding), 1)
 
         ###      UP PASS    ###
@@ -134,9 +134,14 @@ class PixelCNN(nn.Module):
                 ul_list += [self.downsize_ul_stream[i](ul_list[-1])]
 
         # adding middle fusion 
-        embedded_conditions = self.cond_embedding(condition.to(x.device)).unsqueeze(-1).unsqueeze(-1) # Change tensor shape to [B, nr_filters, 1, 1]
-        u_list = self.fuse_conditions(u_list, embedded_conditions)
-        ul_list = self.fuse_conditions(ul_list, embedded_conditions)
+        # print("Condition tensor:", condition)
+        # print("Unique condition values:", torch.unique(condition))
+        # print("Condition dtype:", condition.dtype)
+        # print("Expected range: 0 to", self.cond_embedding.num_embeddings - 1)
+    
+        # embedded_conditions = self.cond_embedding(condition.to(x.device)).unsqueeze(-1).unsqueeze(-1) # Change tensor shape to [B, nr_filters, 1, 1]
+        # self.fuse_conditions(u_list, embedded_conditions)
+        # self.fuse_conditions(ul_list, embedded_conditions)
 
         ###    DOWN PASS    ###
         u  = u_list.pop()
