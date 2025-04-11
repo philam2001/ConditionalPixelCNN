@@ -52,7 +52,7 @@ class PixelCNNLayer_down(nn.Module):
 
 class PixelCNN(nn.Module):
     def __init__(self, nr_resnet=5, nr_filters=80, nr_logistic_mix=10,
-                    resnet_nonlinearity='concat_elu', input_channels=3):
+                    resnet_nonlinearity='concat_elu', input_channels=3, num_classes=5):
         super(PixelCNN, self).__init__()
         if resnet_nonlinearity == 'concat_elu' :
             self.resnet_nonlinearity = lambda x : concat_elu(x)
@@ -96,8 +96,16 @@ class PixelCNN(nn.Module):
         self.nin_out = nin(nr_filters, num_mix * nr_logistic_mix)
         self.init_padding = None
 
+        # add conditional embedding layer
+        self.cond_embedding = nn.Embedding(num_classes, nr_filters)
 
-    def forward(self, x, sample=False):
+    # fuse in the conditions into the feature maps
+    def fuse_conditions(self, feature_list, cond_embedding):
+        fused_list = [feature + cond_embedding for feature in feature_list]
+        return fused_list
+
+    # take in condition, tells model what class embedding to generate on
+    def forward(self, x, condition, sample=False):
         # similar as done in the tf repo :
         if self.init_padding is not sample:
             xs = [int(y) for y in x.size()]
@@ -124,6 +132,11 @@ class PixelCNN(nn.Module):
                 # downscale (only twice)
                 u_list  += [self.downsize_u_stream[i](u_list[-1])]
                 ul_list += [self.downsize_ul_stream[i](ul_list[-1])]
+
+        # adding middle fusion 
+        embedded_conditions = self.cond_embedding(condition.to(x.device)).unsqueeze(-1).unsqueeze(-1) # Change tensor shape to [B, nr_filters, 1, 1]
+        u_list = self.fuse_conditions(u_list, embedded_conditions)
+        ul_list = self.fuse_conditions(ul_list, embedded_conditions)
 
         ###    DOWN PASS    ###
         u  = u_list.pop()
