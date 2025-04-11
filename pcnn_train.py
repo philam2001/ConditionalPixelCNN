@@ -160,12 +160,12 @@ if __name__ == '__main__':
                                                    batch_size=args.batch_size, 
                                                    shuffle=True, 
                                                    **kwargs)
-        test_loader  = torch.utils.data.DataLoader(CPEN455Dataset(root_dir=args.data_dir, 
-                                                                  mode = 'test', 
-                                                                  transform=ds_transforms), 
-                                                   batch_size=args.batch_size, 
-                                                   shuffle=True, 
-                                                   **kwargs)
+        # test_loader  = torch.utils.data.DataLoader(CPEN455Dataset(root_dir=args.data_dir, 
+        #                                                           mode = 'test', 
+        #                                                           transform=ds_transforms), 
+        #                                            batch_size=args.batch_size, 
+        #                                            shuffle=True, 
+        #                                            **kwargs)
         val_loader  = torch.utils.data.DataLoader(CPEN455Dataset(root_dir=args.data_dir, 
                                                                   mode = 'validation', 
                                                                   transform=ds_transforms), 
@@ -204,14 +204,14 @@ if __name__ == '__main__':
         
         # decrease learning rate
         scheduler.step()
-        train_or_test(model = model,
-                      data_loader = test_loader,
-                      optimizer = optimizer,
-                      loss_op = loss_op,
-                      device = device,
-                      args = args,
-                      epoch = epoch,
-                      mode = 'test')
+        # train_or_test(model = model,
+        #               data_loader = test_loader,
+        #               optimizer = optimizer,
+        #               loss_op = loss_op,
+        #               device = device,
+        #               args = args,
+        #               epoch = epoch,
+        #               mode = 'test')
         
         train_or_test(model = model,
                       data_loader = val_loader,
@@ -244,5 +244,8 @@ if __name__ == '__main__':
         
         if (epoch + 1) % args.save_interval == 0: 
             if not os.path.exists("models"):
-                os.makedirs("models")
+                os.makedirs("models",  exist_ok=True)
             torch.save(model.state_dict(), 'models/{}_{}.pth'.format(model_name, epoch))
+    
+    torch.save(model.state_dict(), "models/conditional_pixelcnn.pth")
+    print("Final checkpoint saved!!")
