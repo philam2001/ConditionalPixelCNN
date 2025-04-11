@@ -105,7 +105,7 @@ class PixelCNN(nn.Module):
             feature_list[i] += cond_embedding
 
     # take in condition, tells model what class embedding to generate on
-    def forward(self, x, sample=False):
+    def forward(self, x, condition, sample=False):
         # similar as done in the tf repo :
         if self.init_padding is not sample:
             xs = [int(y) for y in x.size()]
@@ -139,9 +139,10 @@ class PixelCNN(nn.Module):
         # print("Condition dtype:", condition.dtype)
         # print("Expected range: 0 to", self.cond_embedding.num_embeddings - 1)
     
-        # embedded_conditions = self.cond_embedding(condition.to(x.device)).unsqueeze(-1).unsqueeze(-1) # Change tensor shape to [B, nr_filters, 1, 1]
-        # self.fuse_conditions(u_list, embedded_conditions)
-        # self.fuse_conditions(ul_list, embedded_conditions)
+        embedded_conditions = self.cond_embedding(condition.to(x.device)).unsqueeze(-1).unsqueeze(-1) # Change tensor shape to [B, nr_filters, 1, 1]
+        
+        self.fuse_conditions(u_list, embedded_conditions)
+        self.fuse_conditions(ul_list, embedded_conditions)
 
         ###    DOWN PASS    ###
         u  = u_list.pop()
