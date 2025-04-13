@@ -16,12 +16,12 @@ class PixelCNNLayer_up(nn.Module):
                                         resnet_nonlinearity, skip_connection=1, embedding_dim=embedding_dim)
                                             for _ in range(nr_resnet)])
 
-    def forward(self, u, ul, class_embedding=None):
+    def forward(self, u, ul):
         u_list, ul_list = [], []
 
         for i in range(self.nr_resnet):
-            u  = self.u_stream[i](u, class_embedding=class_embedding)
-            ul = self.ul_stream[i](ul, a=u, class_embedding=class_embedding)
+            u  = self.u_stream[i](u)
+            ul = self.ul_stream[i](ul, a=u)
             u_list  += [u]
             ul_list += [ul]
 
@@ -42,11 +42,11 @@ class PixelCNNLayer_down(nn.Module):
                                         resnet_nonlinearity, skip_connection=2, embedding_dim=embedding_dim)
                                             for _ in range(nr_resnet)])
 
-    def forward(self, u, ul, u_list, ul_list, class_embedding=None,):
+    def forward(self, u, ul, u_list, ul_list):
         for i in range(self.nr_resnet):
             # forward call of gated_resnet, takes in og_x, optionally a
-            u  = self.u_stream[i](u, a=u_list.pop(), class_embedding=class_embedding)
-            ul = self.ul_stream[i](ul, a=torch.cat((u, ul_list.pop()), 1), class_embedding=class_embedding)
+            u  = self.u_stream[i](u, a=u_list.pop())
+            ul = self.ul_stream[i](ul, a=torch.cat((u, ul_list.pop()), 1))
 
         return u, ul
 
