@@ -89,7 +89,7 @@ class PixelCNN(nn.Module):
 
         self.ul_init = nn.ModuleList([down_shifted_conv2d(input_channels + nr_filters + 1, nr_filters,
                                             filter_size=(1,3), shift_output_down=True),
-                                       down_right_shifted_conv2d(input_channels + 1, nr_filters,
+                                       down_right_shifted_conv2d(input_channels + nr_filters + 1, nr_filters,
                                             filter_size=(2,1), shift_output_right=True)])
 
         num_mix = 3 if self.input_channels == 1 else 10
