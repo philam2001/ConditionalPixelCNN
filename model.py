@@ -99,6 +99,9 @@ class PixelCNN(nn.Module):
         # add conditional embedding layer
         self.cond_embedding = nn.Embedding(num_classes, nr_filters)
 
+        # add a learnable scalar
+        self.learn_scalar = nn.Parameter(torch.ones(1))
+
     # fuse in the conditions into the feature maps
     def fuse_conditions(self, feature_list, cond_embedding):
         for i in range(len(feature_list)):
@@ -139,7 +142,8 @@ class PixelCNN(nn.Module):
         # print("Condition dtype:", condition.dtype)
         # print("Expected range: 0 to", self.cond_embedding.num_embeddings - 1)
     
-        embedded_conditions = self.cond_embedding(condition.to(x.device)).unsqueeze(-1).unsqueeze(-1) # Change tensor shape to [B, nr_filters, 1, 1]
+        embedded_conditions = self.cond_embedding(condition.to(x.device))*self.learn_scalar
+        embedded_conditions.unsqueeze(-1).unsqueeze(-1) # Change tensor shape to [B, nr_filters, 1, 1]
         
         self.fuse_conditions(u_list, embedded_conditions)
         self.fuse_conditions(ul_list, embedded_conditions)
