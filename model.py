@@ -109,6 +109,13 @@ class PixelCNN(nn.Module):
 
     # take in condition, tells model what class embedding to generate on
     def forward(self, x, condition, sample=False):
+        # early injection
+        B, C, H, W = x.size()
+        class_embedding = self.cond_embedding(condition.to(x.device))
+        class_embedding = class_embedding.unsqueeze(-1).unsqueeze(-1)
+        class_embedding = class_embedding.expand(B, self.embedding_dim, H, W)
+        x = torch.cat((x, class_embedding), dim=1)
+    
         # similar as done in the tf repo :
         if self.init_padding is not sample:
             xs = [int(y) for y in x.size()]
@@ -143,7 +150,7 @@ class PixelCNN(nn.Module):
         # print("Expected range: 0 to", self.cond_embedding.num_embeddings - 1)
     
         embedded_conditions = self.cond_embedding(condition.to(x.device))*self.learn_scalar
-        embedded_conditions.unsqueeze(-1).unsqueeze(-1) # Change tensor shape to [B, nr_filters, 1, 1]
+        embedded_conditions = embedded_conditions.unsqueeze(-1).unsqueeze(-1) # Change tensor shape to [B, nr_filters, 1, 1]
         
         self.fuse_conditions(u_list, embedded_conditions)
         self.fuse_conditions(ul_list, embedded_conditions)
