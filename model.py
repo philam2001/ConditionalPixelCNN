@@ -52,7 +52,7 @@ class PixelCNNLayer_down(nn.Module):
 
 class PixelCNN(nn.Module):
     def __init__(self, nr_resnet=5, nr_filters=80, nr_logistic_mix=10,
-                    resnet_nonlinearity='concat_elu', input_channels=3, num_classes=4):
+                    resnet_nonlinearity='concat_elu', input_channels=3, num_classes=4, embedding_dim=16):
         super(PixelCNN, self).__init__()
         if resnet_nonlinearity == 'concat_elu' :
             self.resnet_nonlinearity = lambda x : concat_elu(x)
@@ -66,10 +66,10 @@ class PixelCNN(nn.Module):
         self.down_shift_pad  = nn.ZeroPad2d((0, 0, 1, 0))
 
         down_nr_resnet = [nr_resnet] + [nr_resnet + 1] * 2
-        self.down_layers = nn.ModuleList([PixelCNNLayer_down(down_nr_resnet[i], nr_filters,
+        self.down_layers = nn.ModuleList([PixelCNNLayer_down(down_nr_resnet[i], nr_filters, embedding_dim,
                                                 self.resnet_nonlinearity) for i in range(3)])
 
-        self.up_layers   = nn.ModuleList([PixelCNNLayer_up(nr_resnet, nr_filters,
+        self.up_layers   = nn.ModuleList([PixelCNNLayer_up(nr_resnet, nr_filters, embedding_dim,
                                                 self.resnet_nonlinearity) for _ in range(3)])
 
         self.downsize_u_stream  = nn.ModuleList([down_shifted_conv2d(nr_filters, nr_filters,
@@ -95,9 +95,9 @@ class PixelCNN(nn.Module):
         num_mix = 3 if self.input_channels == 1 else 10
         self.nin_out = nin(nr_filters, num_mix * nr_logistic_mix)
         self.init_padding = None
-
+        self.num_classes = num_classes
         # add conditional embedding layer
-        self.cond_embedding = nn.Embedding(num_classes, nr_filters)
+        self.cond_embedding = nn.Embedding(num_classes, embedding_dim)
 
         # add a learnable scalar
         self.learn_scalar = nn.Parameter(torch.ones(1))
@@ -110,11 +110,14 @@ class PixelCNN(nn.Module):
     # take in condition, tells model what class embedding to generate on
     def forward(self, x, condition, sample=False):
         # early injection
-        B, C, H, W = x.size()
-        class_embedding = self.cond_embedding(condition.to(x.device))
-        class_embedding = class_embedding.unsqueeze(-1).unsqueeze(-1)
-        class_embedding = class_embedding.expand(B, class_embedding.size(1) , H, W)
-        x = torch.cat((x, class_embedding), dim=1)
+        B, _, H, W = x.size()
+        # class_embedding = self.cond_embedding(condition.to(x.device))
+        # class_embedding = class_embedding.unsqueeze(-1).unsqueeze(-1)
+        # class_embedding = class_embedding.expand(B, class_embedding.size(1) , H, W)
+        onehot = torch.nn.functional.one_hot(condition, num_classes=self.num_classes).float()  # [B, label_dim]
+        # Expand the one-hot vectors spatially
+        onehot_label_map = onehot.view(B, self.num_classes, 1, 1).expand(-1, -1, H, W)
+        # x = torch.cat((x, class_embedding), dim=1)
     
         # similar as done in the tf repo :
         if self.init_padding is not sample:
@@ -126,10 +129,10 @@ class PixelCNN(nn.Module):
             xs = [int(y) for y in x.size()]
             padding = Variable(torch.ones(xs[0], 1, xs[2], xs[3]), requires_grad=False)
             padding = padding.cuda() if x.is_cuda else padding.to(x.device)
-            x = torch.cat((x, padding), 1)
+            x = torch.cat((x, onehot_label_map, padding), 1)
 
         ###      UP PASS    ###
-        x = x if sample else torch.cat((x, self.init_padding), 1)
+        x = x if sample else torch.cat((x, onehot_label_map, self.init_padding), 1)
         u_list  = [self.u_init(x)]
         ul_list = [self.ul_init[0](x) + self.ul_init[1](x)]
         for i in range(3):
