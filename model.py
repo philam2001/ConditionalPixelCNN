@@ -99,7 +99,7 @@ class PixelCNN(nn.Module):
         self.init_padding = None
         self.num_classes = num_classes
         # add conditional embedding layer
-        self.cond_embedding = nn.Embedding(num_classes, embedding_dim)
+        self.cond_embedding = nn.Embedding(num_classes, nr_filters)
 
         # add a learnable scalar
         self.learn_scalar = nn.Parameter(torch.ones(1))
