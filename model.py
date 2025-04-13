@@ -113,7 +113,7 @@ class PixelCNN(nn.Module):
         B, C, H, W = x.size()
         class_embedding = self.cond_embedding(condition.to(x.device))
         class_embedding = class_embedding.unsqueeze(-1).unsqueeze(-1)
-        class_embedding = class_embedding.expand(B, self.embedding_dim, H, W)
+        class_embedding = class_embedding.expand(B, class_embedding.size(1) , H, W)
         x = torch.cat((x, class_embedding), dim=1)
     
         # similar as done in the tf repo :
