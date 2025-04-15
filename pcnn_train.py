@@ -36,7 +36,6 @@ def train_or_test(model, data_loader, optimizer, loss_op, device, args, epoch, m
         if mode == 'training':
             optimizer.zero_grad()
             loss.backward()
-            if epoch < 
             optimizer.step()
 
     if mode == 'val':
