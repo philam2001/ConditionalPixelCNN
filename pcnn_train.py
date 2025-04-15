@@ -29,6 +29,7 @@ def train_or_test(model, data_loader, optimizer, loss_op, device, args, epoch, m
         model_input = model_input.to(device)
         condition_indx = [my_bidict[label] for label in condition_labels]
         condition_indx = torch.tensor(condition_indx).to(device)
+        # forward pass 
         model_output = model(model_input, condition_indx)
         loss = loss_op(model_input, model_output)
         loss_tracker.update(loss.item()/deno)
@@ -36,13 +37,14 @@ def train_or_test(model, data_loader, optimizer, loss_op, device, args, epoch, m
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-        elif mode == 'val':
-            accuracy = classifier(model, data_loader, device)
-            
-    if args.en_wandb and mode == "val":
-        wandb.log({mode + "-Accuracy" : accuracy})
-        wandb.log({mode + "-epoch": epoch})
-        
+
+    if mode == 'val':
+        accuracy = classifier(model, data_loader, device)
+        print(f"Val Accuracy: {accuracy:.3%}")
+        if args.en_wandb:
+            wandb.log({mode + "-Accuracy" : accuracy})
+            wandb.log({mode + "-epoch": epoch})
+
     if args.en_wandb:
         wandb.log({mode + "-Average-BPD" : loss_tracker.get_mean()})
         wandb.log({mode + "-epoch": epoch})
