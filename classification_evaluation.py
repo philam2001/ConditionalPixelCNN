@@ -25,22 +25,27 @@ def get_label(model, model_input, device):
     # Write your code here, replace the random classifier with your trained model
     # and return the predicted label, which is a tensor of shape (batch_size,)
     batch_size = model_input.size(0)
+    pred = []
 
-    # Log likelihood tensor move to device 
-    likelihoods = torch.zeros(NUM_CLASSES, batch_size).to(device)
-
-    for class_ind in my_bidict.values():
-        # condition tensor with class ind
-        condition_tensor = torch.full((batch_size,), class_ind).to(device)
-        output = model(model_input, condition_tensor)
+    for i in range(batch_size):
+        # i-th sample
+        sample = model_input[i:i+1]  # 4D tensor with batch dim 1
+        sample_losses = []
         
-        # get per sample losses
-        loss = discretized_mix_logistic_loss(model_input, output)
-        likelihoods[class_ind, :] = loss
+        # compute loss for each condition for this sample
+        for class_ind in my_bidict.values():
+            # condition tensor for the sample
+            condition_tensor = torch.tensor([class_ind]).to(device)
+            output = model(sample, condition_tensor)
+            loss = discretized_mix_logistic_loss(sample, output)
+            sample_losses.append(loss.item())
+        
+        # grab min loss for this sample
+        sample_losses = torch.tensor(sample_losses)
+        pred_class = torch.argmin(sample_losses)
+        pred.append(pred_class.item())
 
-    # pick class that mins the loss
-    pred = torch.argmin(likelihoods, dim=0)
-    return pred
+    return torch.tensor(pred, device=device)
 # End of your code
 
 def classifier(model, data_loader, device):
@@ -83,7 +88,7 @@ if __name__ == '__main__':
 
     #TODO:Begin of your code
     #You should replace the random classifier with your trained model
-    model = PixelCNN(nr_resnet=2, nr_filters=60, input_channels=3, nr_logistic_mix=5)
+    model = PixelCNN(nr_resnet=2, nr_filters=60, input_channels=3, nr_logistic_mix=10)
     #End of your code
     
     model = model.to(device)
