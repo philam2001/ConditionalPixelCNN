@@ -238,7 +238,7 @@ if __name__ == '__main__':
         
                 sample_t = sample(model, args.sample_batch_size, args.obs, sample_op, condition_tensor)
                 sample_t = rescaling_inv(sample_t)
-                save_images(sample_t, args.sample_dir, condition_tensor)
+                save_images(sample_t, args.sample_dir, classNum)
                 sample_result = wandb.Image(sample_t, caption="epoch {}".format(epoch))
             
             gen_data_dir = args.sample_dir
