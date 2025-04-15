@@ -133,6 +133,9 @@ class PixelCNN(nn.Module):
             padding = padding.cuda() if x.is_cuda else padding.to(x.device)
             x = torch.cat((x, onehot_label_map, padding), 1)
 
+        embedded_conditions = self.cond_embedding(condition.to(x.device))*self.learn_scalar
+        embedded_conditions = embedded_conditions.unsqueeze(-1).unsqueeze(-1) # Change tensor shape to [B, nr_filters, 1, 1]
+        
         ###      UP PASS    ###
         x = x if sample else torch.cat((x, onehot_label_map, self.init_padding), 1)
         u_list  = [self.u_init(x)]
@@ -140,6 +143,11 @@ class PixelCNN(nn.Module):
         for i in range(3):
             # resnet block
             u_out, ul_out = self.up_layers[i](u_list[-1], ul_list[-1])
+            
+            # Add more injections to increase impact of condition
+            u_out  = [u + embedded_conditions for u in u_out]
+            ul_out = [ul + embedded_conditions for ul in ul_out]
+
             u_list  += u_out
             ul_list += ul_out
 
@@ -154,9 +162,6 @@ class PixelCNN(nn.Module):
         # print("Condition dtype:", condition.dtype)
         # print("Expected range: 0 to", self.cond_embedding.num_embeddings - 1)
     
-        embedded_conditions = self.cond_embedding(condition.to(x.device))*self.learn_scalar
-        embedded_conditions = embedded_conditions.unsqueeze(-1).unsqueeze(-1) # Change tensor shape to [B, nr_filters, 1, 1]
-        
         self.fuse_conditions(u_list, embedded_conditions)
         self.fuse_conditions(ul_list, embedded_conditions)
 
