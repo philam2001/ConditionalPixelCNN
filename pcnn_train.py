@@ -58,7 +58,7 @@ if __name__ == '__main__':
                             help='Tag for this run')
     
     # sampling
-    parser.add_argument('-c', '--sampling_interval', type=int, default=5,
+    parser.add_argument('-c', '--sampling_interval', type=int, default=25,
                         help='sampling interval')
     # data I/O
     parser.add_argument('-i', '--data_dir', type=str,
@@ -69,7 +69,7 @@ if __name__ == '__main__':
                         help='Location for saving samples')
     parser.add_argument('-d', '--dataset', type=str,
                         default='cpen455', help='Can be either cifar|mnist|cpen455')
-    parser.add_argument('-st', '--save_interval', type=int, default=10,
+    parser.add_argument('-st', '--save_interval', type=int, default=25,
                         help='Every how many epochs to write checkpoint/samples?')
     parser.add_argument('-r', '--load_params', type=str, default=None,
                         help='Restore training from previous model checkpoint?')
