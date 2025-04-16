@@ -10,3 +10,5 @@ python pcnn_train.py \
 --lr_decay 0.999995 \
 --max_epochs 200 \
 --en_wandb True \
+# Accuracy: 0.7842003853564548
+# Average fid score: 15.880702676263667
