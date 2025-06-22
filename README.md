@@ -1,28 +1,30 @@
-# CPEN455 2024 W2 Course Project: Conditional PixelCNN++ for Image Classification
+# Conditional PixelCNN++ for Image Classification
 
+Latest Update: June 22, 2025
 
-This repo is for CPEN 455 course project 2024 Winter Term 2 at UBC. **The goal of this project is to implement the Conditional PixelCNN++ model and train it on the given dataset.** After that, the model can both generate new images and classify the given images. **For grading, we evaluate the model based on both the generation performance and classification performance.**
+**The goal of this project is to implement the Conditional PixelCNN++ model and train it on the given dataset.** After that, the model can both generate new images and classify the given images. 
 
 ## Overview
 
-- [CPEN455 2024 W2 Course Project: Conditional PixelCNN++ for Image Classification](#cpen455-2024-w2-course-project-conditional-pixelcnn-for-image-classification)
-  - [Overview](#overview)
+<!-- - [CPEN455 2024 W2 Course Project: Conditional PixelCNN++ for Image Classification](#cpen455-2024-w2-course-project-conditional-pixelcnn-for-image-classification) -->
+  <!-- - [Overview](#overview) -->
   - [Project Introduction](#project-introduction)
-  - [Basic tools](#basic-tools)
-  - [Running original PixelCNN++ code](#running-original-pixelcnn-code)
-  - [Detailed Guidance](#detailed-guidance)
+  - [Project Results](#project-results)
   - [Dataset](#dataset)
-  - [Submission Requirements:](#submission-requirements)
+  - [Submission:](#submission)
   - [Model Evaluation](#model-evaluation)
-  - [Grading Rubric](#grading-rubric)
-    - [Bonus Points:](#bonus-points)
-  - [Milestones](#milestones)
-  - [Final project report guidelines](#final-project-report-guidelines)
+  <!-- - [Basic tools](#basic-tools)
+  - [Running original PixelCNN++ code](#running-original-pixelcnn-code) -->
+  <!-- - [Detailed Guidance](#detailed-guidance) -->
+  <!-- - [Grading Rubric](#grading-rubric)
+    - [Bonus Points:](#bonus-points) -->
+  <!-- - [Milestones](#milestones) -->
+  <!-- - [Final project report guidelines](#final-project-report-guidelines)
     - [Report Length and Structure:](#report-length-and-structure)
     - [Model Presentation Tips:](#model-presentation-tips)
     - [Experiments Section:](#experiments-section)
     - [Conclusion Section:](#conclusion-section)
-  - [Academic Integrity Guidelines for the Course Project](#academic-integrity-guidelines-for-the-course-project)
+  - [Academic Integrity Guidelines for the Course Project](#academic-integrity-guidelines-for-the-course-project) -->
 
 ## Project Introduction
 
@@ -43,7 +45,38 @@ In this case, with a trained conditional PixelCNN++, we could directly apply it 
 **Task:** For our final project, you are required to achieve the following tasks
 * We will provide you with codes for an unconditional PixelCNN++. You need to adapt it to conditional image generation task and train it on our provided database.
 
-## Basic tools
+## Project Results
+🔗 Full documentation of the Project Results are in this [Project Documentation PDF](https://github.com/philam2001/ConditionalPixelCNN/Final_Project.pdf)
+#### 🎯 Final Results
+
+<div align="center">
+
+| Metric              | Value                          |
+|---------------------|--------------------------------|
+| Validation Accuracy | **78.42%**                     |
+| FID Score           | **15.88**                      |
+
+
+</div>
+
+The figure below shows key training and validation metrics from this study. The middle fusion configuration achieved a lower BPD, indicating a more efficient representation in terms of likelihood. However as FID is the more important metric we are looking at here, the combined effect demonstrates a better FID score and decreasing trend shown.
+
+<div align="center">
+
+![FID Score Sweep](extra/fid.png)
+
+</div>
+
+#### 🧪 Highlights
+
+- Combined **early and middle fusion** yielded better FID and accuracy than middle fusion alone.
+- Early fusion: Used one-hot class maps concatenated to input image.
+- Middle fusion: Learned embedding scaled by trainable parameter `α` added throughout residual layers.
+- **Ablation study** confirmed value of dual fusion: FID improvement and stronger class clarity.
+- Used **Weights & Biases Bayesian sweep** with **Wandb**  to explore batch size, logistic mixtures, and depth parameters.
+- **Next steps**: Incorporate FiLM-based conditioning and deploy model in personal applications.
+
+<!-- ## Basic tools
 We recommend the following tools for debugging, monitoring, and training process:
 <details>
   <summary>
@@ -71,10 +104,10 @@ PDB is an interactive Python debugger. You can use it to debug your code. You ca
     Conda
   </summary>
 Conda is a package manager. You can use it to create a virtual environment and install the required packages. You can find how to use conda in the following link: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
-</details>
+</details> -->
 
 
-## Running original PixelCNN++ code
+<!-- ## Running original PixelCNN++ code
 <details>
   <summary>
     Running on Google Colab
@@ -157,15 +190,15 @@ You can also refer to the following implementations of PixelCNN++:
 
 1. Original PixelCNN++ repository implemented by OpenAI: https://github.com/openai/pixel-cnn
 
-2. Pytorch implementation of PixelCNN++: https://github.com/pclucas14/pixel-cnn-pp
-
+2. Pytorch implementation of PixelCNN++: https://github.com/pclucas14/pixel-cnn-pp -->
+<!-- 
 ## Detailed Guidance
 
-Please refer to the [guidance.md](guidance/guidance.md) file for detailed guidance on the project.
+Please refer to the [guidance.md](guidance/guidance.md) file for detailed guidance on the project. -->
 
 ## Dataset
 
-In the code base we provided, we have included the data required to train conditional PixelCNN++. The directory structure is as follows:
+The data directory structure required to train conditional PixelCNN++ is as follows:
 ```
 data
 ├── test
@@ -190,25 +223,25 @@ id, label
 0000008.jpg,0
 ```
 
-## Submission Requirements:
-You must compress the following materials into a zip file and submit it on Canvas:
+## Submission:
+<!-- You must compress the following materials into a zip file and submit it on Canvas: -->
 
-- [ ] **Complete project code**
-  - [ ] **Implement two evaluation scripts**:
-    - [ ] `generation_evaluation.py`: 
+- [x] **Complete project code**
+  - [x] **Implement two evaluation scripts**:
+    - [x] `generation_evaluation.py`: 
       - Save generated images to `./samples` directory
       - Include 100 total images (25 per class across 4 classes)
       - Detailed instructions are introduced in [generation_evaluation.py](generation_evaluation.py)
-    - [ ] `classification_evaluation.py`:
+    - [x] `classification_evaluation.py`:
       - Evaluate model accuracy on validation set
       - Maintain original code interfaces (we will test using the test set)
       - Detailed instructions are introduced in [classification_evaluation.py](classification_evaluation.py)
-    - **Important**: Avoid attempts to circumvent proper evaluation. Submissions that generate invalid samples or fail classification tasks while containing deceptive code **will receive penalties**. If struggling with implementation, refer to [Milestone and Grading](#milestone-and-grading) for partial credit options rather than non-functional workarounds.
-    - **Important**: Please DO NOT change any other definitions in the two interfaces `generation_evaluation.py` and `classification_evaluation.py`. All you can modify is within "begin of your code" and "end of your code". As for other parts of this repo, you can modify them arbitrarily.
-  - [ ] **Model checkpoint**:
+    <!-- - **Important**: Avoid attempts to circumvent proper evaluation. Submissions that generate invalid samples or fail classification tasks while containing deceptive code **will receive penalties**. If struggling with implementation, refer to [Milestone and Grading](#milestone-and-grading) for partial credit options rather than non-functional workarounds.
+    - **Important**: Please DO NOT change any other definitions in the two interfaces `generation_evaluation.py` and `classification_evaluation.py`. All you can modify is within "begin of your code" and "end of your code". As for other parts of this repo, you can modify them arbitrarily. -->
+  - [x] **Model checkpoint**:
     - Save to `models/conditional_pixelcnn.pth`
 
-- [ ] **Project report**
+- [x] **Project report**
   - The requirement is introduced in [Final project report guidelines](#final-project-report-guidelines)
 
 ## Model Evaluation
@@ -221,7 +254,7 @@ For assessing the quality of generated images, we have provided an evaluation in
 
 Evaluation of model performance will affect a portion of the final score, but not all of it. After deadlines, we will attempt to reproduce all submitted code, and any cheating discovered will result in deductions and appropriate actions taken. The quality of the code, the completeness of the project, and the ability to reproduce results will all be considered in determining the final score.
 
-## Grading Rubric
+<!-- ## Grading Rubric
 The final score is calculated based on Generation Performance, Classification Performance, Report Quality, and Bonus Points:
 
 + **Generation Performance**  
@@ -252,9 +285,9 @@ The final score is calculated based on Generation Performance, Classification Pe
   + Implement different fusion strategies in the architecture and compare their performance.
   + Why are the advantages of using a mixture of logistics used in PixelCNN++? (hint: You will get the answer if you go through the sampling function, also the similar philosophy shared in deepseek-v2/v3)
   + Read papers and reproduce their methods for inserting conditions, comparing them with common fusion implementations.
-  + Compare the performance of your model with dedicated classifiers (e.g., CNN-based classifiers) trained on the same dataset. Think about the advantages and disadvantages of your model compared with dedicated classifiers.
+  + Compare the performance of your model with dedicated classifiers (e.g., CNN-based classifiers) trained on the same dataset. Think about the advantages and disadvantages of your model compared with dedicated classifiers. -->
 
-## Milestones
+<!-- ## Milestones
 It's hard to set some specific milestones for the project, because each part of the entire project is closely related to each other. Once you implement the conditional insertion into the model, the remaining parts are more or less straightforward.
 
 However, **if you are too busy to implement the entire project or find this project too challenging**, you can still get partial marks by completing some basic tasks, for example:
@@ -263,9 +296,9 @@ However, **if you are too busy to implement the entire project or find this proj
 + Introduce the PixelCNN++ model in detail within the report and describe your attempts to implement the conditional PixelCNN++ model. (Graded based on how detailed your description is of the concepts you've learned.)
 + Try to answer the [bonus questions](#bonus-points) mentioned previously. 
 
-**For those who are able to complete the entire project, please ignore this part**.
+**For those who are able to complete the entire project, please ignore this part**. -->
 
-## Final project report guidelines
+<!-- ## Final project report guidelines
 Students are required to work on projects individually. All reports must be formatted according to the NeurIPS conference style and submitted in PDF format. When combining the report with source code and additional results, the submission on Canvas portal should be in a zip file format.
 
 
@@ -289,9 +322,9 @@ Including at least one of the following is recommended:
 + Both quantitative and qualitative analysis of experimental results.
 ### Conclusion Section:
 + Summarize key findings and contributions of your project.
-+ Discuss limitations and potential avenues for future improvements and research.
++ Discuss limitations and potential avenues for future improvements and research. -->
 
-## Academic Integrity Guidelines for the Course Project
+<!-- ## Academic Integrity Guidelines for the Course Project
 
 In developing your model, you are permitted to utilize any functions available in PyTorch and to consult external resources. However, it is imperative to properly acknowledge all sources and prior work utilized.
 
@@ -305,4 +338,4 @@ Violations of academic integrity will result in a grade of ZERO. These violation
 
 Adhering to these guidelines is crucial for maintaining a fair and honest academic environment. Thank you for your cooperation.
 
-
+ -->
