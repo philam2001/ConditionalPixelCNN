@@ -46,7 +46,7 @@ In this case, with a trained conditional PixelCNN++, we could directly apply it 
 * We will provide you with codes for an unconditional PixelCNN++. You need to adapt it to conditional image generation task and train it on our provided database.
 
 ## Project Results
-🔗 Full documentation of the Project Results are in this [Project Documentation PDF](https://github.com/philam2001/ConditionalPixelCNN/Final_Project.pdf)
+🔗 Full documentation of the Project Results are in this [Project Documentation PDF](https://github.com/philam2001/ConditionalPixelCNN/blob/main/Final_Project.pdf)
 #### 🎯 Final Results
 
 <div align="center">
